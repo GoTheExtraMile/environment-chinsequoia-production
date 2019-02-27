@@ -9,15 +9,6 @@ pipeline {
     DEPLOY_NAMESPACE = "jx-production"
   }
   stages {
-    stage('Validate Environment') {
-      steps {
-        container('maven') {
-          dir('env') {
-            sh 'jx step helm build'
-          }
-        }
-      }
-    }
     stage('Update Environment') {
       when {
         branch 'master'
@@ -25,7 +16,7 @@ pipeline {
       steps {
         container('maven') {
           dir('env') {
-            sh 'jx step helm apply'
+            sh 'helm init --client-only --stable-repo-url http://charts.iflyresearch.com/ && helm repo add release http://chartmuseum.jx.yss && helm dependency build . && helm upgrade $DEPLOY_NAMESPACE . --install --namespace $DEPLOY_NAMESPACE'
           }
         }
       }
